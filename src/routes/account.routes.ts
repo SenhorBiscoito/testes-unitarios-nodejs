@@ -1,11 +1,8 @@
 import { Router } from "express";
-import { v4 as uuidv4 } from "uuid";
 
-import { Account, Account } from "../models/Account";
+import { AccountsRepository } from "../repositories/AccountsRepository";
 
 const accountRoutes = Router();
-
-const customers: Account[] = [];
 
 // Middleware
 function verifyIfExistsAccountCPF(request, response, next) {
@@ -22,9 +19,11 @@ function verifyIfExistsAccountCPF(request, response, next) {
   return next();
 }
 
+const accountsRepository = new AccountsRepository();
+
 accountRoutes.get("/", verifyIfExistsAccountCPF, (request, response) => {
-  const { customer } = request;
-  return response.json(customer);
+  const all = accountsRepository.list();
+  return response.json(all);
 });
 
 accountRoutes.post("/", (request, response) => {
@@ -38,16 +37,9 @@ accountRoutes.post("/", (request, response) => {
     return response.status(400).json({ error: "Customer already exists" });
   }
 
-  const account = new Account();
+  accountsRepository.create({ name, cpf });
 
-  Object.assign(account, {
-    name,
-    cpf,
-  });
-
-  customers.push(account);
-
-  return response.status(201).json({ account });
+  return response.status(201).send();
 });
 
 accountRoutes.put("/", verifyIfExistsAccountCPF, (request, response) => {
