@@ -3,12 +3,13 @@ import { Router } from "express";
 import { AccountsRepository } from "../repositories/AccountsRepository";
 
 const accountRoutes = Router();
+const accountsRepository = new AccountsRepository();
 
 // Middleware
 function verifyIfExistsAccountCPF(request, response, next) {
   const { cpf } = request.headers;
 
-  const customer = customers.find((customer) => customer.cpf === cpf);
+  const customer = accountsRepository.findByCPF(cpf);
 
   if (!customer) {
     return response.status(404).json({ error: "Customer not found" });
@@ -19,8 +20,6 @@ function verifyIfExistsAccountCPF(request, response, next) {
   return next();
 }
 
-const accountsRepository = new AccountsRepository();
-
 accountRoutes.get("/", verifyIfExistsAccountCPF, (request, response) => {
   const all = accountsRepository.list();
   return response.json(all);
@@ -29,9 +28,7 @@ accountRoutes.get("/", verifyIfExistsAccountCPF, (request, response) => {
 accountRoutes.post("/", (request, response) => {
   const { cpf, name } = request.body;
 
-  const customerAlredyExists = customers.some(
-    (customer) => customer.cpf === cpf
-  );
+  const customerAlredyExists = accountsRepository.findByCPF(cpf);
 
   if (customerAlredyExists) {
     return response.status(400).json({ error: "Customer already exists" });
@@ -54,9 +51,9 @@ accountRoutes.put("/", verifyIfExistsAccountCPF, (request, response) => {
 accountRoutes.delete("/", verifyIfExistsAccountCPF, (request, response) => {
   const { customer } = request;
 
-  customers.splice(customer, 1);
+  accountsRepository.deleleByCpf(customer.cpf);
 
-  return response.status(200).json(customers);
+  return response.status(200).send();
 });
 
 export { accountRoutes };

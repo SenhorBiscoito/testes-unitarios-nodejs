@@ -27,6 +27,19 @@ class AccountsRepository {
   list(): Account[] {
     return this.customers;
   }
+
+  findByCPF(cpf: string): Account {
+    const customer = this.customers.find((customer) => customer.cpf === cpf);
+    return customer;
+  }
+
+  deleleByCpf(cpf: string): Account {
+    const customer = this.customers.find((customer) => customer.cpf === cpf);
+
+    this.customers.splice(customer, 1);
+
+    return customer;
+  }
 }
 
 export { AccountsRepository };
