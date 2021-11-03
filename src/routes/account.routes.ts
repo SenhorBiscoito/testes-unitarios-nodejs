@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { v4 as uuidv4 } from "uuid";
 
-import { Account } from "../models/Account";
+import { Account, Account } from "../models/Account";
 
 const accountRoutes = Router();
 
@@ -38,15 +38,16 @@ accountRoutes.post("/", (request, response) => {
     return response.status(400).json({ error: "Customer already exists" });
   }
 
-  customers.push({
-    cpf,
+  const account = new Account();
+
+  Object.assign(account, {
     name,
-    id: uuidv4(),
-    created_at: new Date(),
-    statement: [],
+    cpf,
   });
 
-  return response.status(201).send();
+  customers.push(account);
+
+  return response.status(201).json({ account });
 });
 
 accountRoutes.put("/", verifyIfExistsAccountCPF, (request, response) => {
