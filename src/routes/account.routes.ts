@@ -5,7 +5,21 @@ const accountRoutes = Router();
 
 const customers = [];
 
-accountRoutes.post("/account", (request, response) => {
+accountRoutes.get("/", (request, response) => {
+  const { cpf } = request.headers;
+
+  const customer = customers.find((customer) => customer.cpf === cpf);
+
+  if (!customer) {
+    return response.status(404).json({ error: "Customer not found" });
+  }
+
+  request.customer = customer;
+
+  return response.json(customer);
+});
+
+accountRoutes.post("/", (request, response) => {
   const { cpf, name } = request.body;
 
   const customerAlredyExists = customers.some(
